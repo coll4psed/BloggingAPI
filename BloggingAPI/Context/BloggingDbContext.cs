@@ -1,4 +1,4 @@
-﻿using BloggingAPI.Models;
+﻿using BloggingAPI.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace BloggingAPI.Context;
@@ -16,4 +16,5 @@ public class BloggingDbContext : DbContext
     }
 
     public DbSet<Post> Posts { get; set; } = null!;
+    public DbSet<Category> Categories { get; set; } = null!;
 }

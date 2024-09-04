@@ -6,3 +6,11 @@ services:
     environment:
         POSTGRES_PASSWORD: 12345678
         POSTGRES_DB: BloggingDatabase
+    ports:
+        - 5432:5432 
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+        - 8080:8080

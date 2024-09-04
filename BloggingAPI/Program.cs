@@ -1,8 +1,12 @@
+using BloggingAPI.Context;
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddScoped<BloggingDbContext>();
 
 var app = builder.Build();
 
