@@ -6,7 +6,7 @@ Pre requirements:
  - Docker
 
 To start the app you need:
- 1. Enter the directory which contains BloggingAPI.csproj
+ 1. Enter the directory which contains BloggingAPI.csproj, and copy the path to your cmd
 ![image](https://github.com/user-attachments/assets/2fbe1424-fe7e-4f69-9197-d02bc30ea1bf)
  2. Run "docker-compose up -d" to launch database instance (PostgreSQL)
  3. Then "dotnet run"
