@@ -10,11 +10,11 @@ namespace BloggingAPI.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class PostController : ControllerBase
+public class PostsController : ControllerBase
 {
     private readonly BloggingDbContext _dbcontext;
 
-    public PostController(BloggingDbContext context)
+    public PostsController(BloggingDbContext context)
     {
         _dbcontext = context ??
             throw new ArgumentNullException(nameof(context));
@@ -43,31 +43,24 @@ public class PostController : ControllerBase
         [FromQuery] GetPostDto request,
         CancellationToken ct)
     {
-        var postQuery = _dbcontext.Posts
+        var postsToReturn = await _dbcontext.Posts
             .Where(p => string.IsNullOrWhiteSpace(request.Search) ||
-            p.Title.ToLower().Contains(request.Search.ToLower()));
+            p.Title.ToLower().Contains(request.Search.ToLower())).ToListAsync();
 
-        Expression<Func<Post, object>> selectorKey = request.SortItem?.ToLower() switch
+        return Ok(postsToReturn);
+    }
+
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetPostById(Guid id)
+    {
+        var post = await _dbcontext.Posts.FirstOrDefaultAsync(p => p.Id == id);
+        
+        if (post == null)
         {
-            "date" => post => post.CreatedAt,
-            "title" => post => post.Title,
-            _ => post => post.Id,
-        };
+            return NotFound();
+        }
 
-        postQuery = request.SortOrder == "desc"
-            ? postQuery.OrderByDescending(selectorKey)
-            : postQuery.OrderBy(selectorKey);
-
-        var postDtos = await postQuery.Select(p => new PostDto(
-            p.Id,
-            p.Title,
-            p.Content,
-            p.CategoryId,
-            p.Tags,
-            p.CreatedAt,
-            p.UpdatedAt)).ToListAsync();
-
-        return Ok(new GetPostResponse(postDtos));
+        return Ok(post);
     }
 
     [HttpPut]
@@ -93,6 +86,22 @@ public class PostController : ControllerBase
         postToUpdate.UpdatedAt = DateTime.UtcNow;
 
         _dbcontext.Posts.Update(postToUpdate);
+        await _dbcontext.SaveChangesAsync();
+
+        return Ok();
+    }
+
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeletePost(Guid id)
+    {
+        var postToDelete = await _dbcontext.Posts.FirstOrDefaultAsync(p => p.Id == id);
+        
+        if (postToDelete == null)
+        {
+            return NotFound();
+        }
+
+        _dbcontext.Posts.Remove(postToDelete);
         await _dbcontext.SaveChangesAsync();
 
         return Ok();
